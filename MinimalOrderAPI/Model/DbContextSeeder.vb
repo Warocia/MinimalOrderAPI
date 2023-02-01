@@ -1,4 +1,5 @@
-﻿Imports Microsoft.AspNetCore.Identity
+﻿Imports Faker
+Imports Microsoft.AspNetCore.Identity
 Imports Microsoft.EntityFrameworkCore
 Imports System.ComponentModel
 
@@ -7,41 +8,44 @@ Public Module DbContextSeeder
         context.Database.EnsureDeleted()
         context.Database.EnsureCreated()
 
-        Dim orderline1 As New Orderline() With {
-            .ProductName = "Toilet paper",
-            .Count = 10,
-            .UnitCost = 10,
-            .TotalCost = 100,
-            .CostUnit = "€"
-        }
+        Dim random As New Random()
+        Dim randomNumber As Integer = random.Next(10, 150)
 
-        Dim orderline2 As New Orderline() With {
-            .ProductName = "L'Oréal Hair Oil",
-            .Count = 1,
-            .UnitCost = 10,
-            .TotalCost = 10,
-            .CostUnit = "€"
-        }
 
-        Dim orderline3 As New Orderline() With {
-            .ProductName = "Super Sparrow Stainless Steel Water Bottle",
-            .Count = 15,
-            .UnitCost = 5,
-            .TotalCost = 75,
-            .CostUnit = "€"
-        }
 
-        Dim order As New Order() With {
-            .OrderNumber = "O1432",
-            .CustomerName = "Jacobson LLC",
-            .CustomerEmail = "jacobson@gmail.com",
-            .CustomerPhone = "340305454",
-            .DeliveryDate = DateTime.Now,
-            .Orderlines = New List(Of Orderline) From {orderline1, orderline2, orderline3}
-        }
+        For index = 0 To randomNumber
 
-        context.Orders.Add(order)
+            Dim randomNumberRow As Integer = random.Next(1, 10)
+
+            Dim customerCompanyName As String = Faker.Company.Name
+
+            Dim order As New Order() With {
+                .OrderNumber = "O" + ((index + 1) * 1000).ToString,
+                .CustomerName = Faker.Company.Name,
+                .CustomerEmail = Faker.Internet.FreeEmail,
+                .CustomerPhone = Faker.Phone.Number,
+                .DeliveryDate = DateTime.Now.AddDays(index),
+                .Orderlines = New List(Of Orderline)
+            }
+
+            For subIndex = 0 To randomNumberRow
+                Dim orderline As New Orderline() With {
+                  .ProductName = Faker.Lorem.Words(1).First,
+                  .Count = random.Next(1, 15),
+                  .UnitCost = random.Next(1, 150),
+                  .TotalCost = 0,
+                  .CostUnit = "€"
+                }
+
+                orderline.TotalCost = orderline.UnitCost * orderline.Count
+                order.Orderlines.Add(orderline)
+
+            Next
+
+            context.Orders.Add(order)
+        Next
 
         context.SaveChanges()
+
     End Sub
 End Module
