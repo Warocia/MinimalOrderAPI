@@ -7,6 +7,9 @@ Imports Microsoft.AspNetCore.Mvc
 Imports Microsoft.AspNetCore.Http.HttpResults
 Imports Microsoft.AspNetCore.Http
 Imports System.ComponentModel
+Imports Microsoft.AspNetCore.Cors.Infrastructure
+Imports Microsoft.OpenApi
+
 
 Module Program
     Sub Main(args As String())
@@ -21,6 +24,18 @@ Module Program
         builder.Services.AddDbContext(Of DataContext)(Function(options)
                                                           Return options.UseSqlite(connectionString)
                                                       End Function)
+
+
+
+        builder.Services.AddCors(Sub(policyBuilder)
+                                     policyBuilder.AddPolicy("devPolicy", Function(policy)
+                                                                              policy.WithOrigins("http://localhost:3000")
+                                                                              policy.SetIsOriginAllowedToAllowWildcardSubdomains()
+                                                                              policy.AllowAnyMethod()
+                                                                              policy.AllowAnyHeader()
+                                                                              Return policy
+                                                                          End Function)
+                                 End Sub)
 
         Dim app = builder.Build()
 
@@ -102,6 +117,7 @@ Module Program
                                           Return Results.NotFound()
                                       End Function)
 
+        app.UseCors("devPolicy")
         app.Run()
     End Sub
 End Module

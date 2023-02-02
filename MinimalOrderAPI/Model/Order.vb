@@ -22,7 +22,7 @@ Public Class Order
     Public Property CustomerPhone As String
 
     <DataType(DataType.DateTime)>
-    Public Property DeliveryDate As String
+    Public Property DeliveryDate As DateTime
 
     Public Overridable Property Orderlines As ICollection(Of Orderline)
 
