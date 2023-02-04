@@ -65,13 +65,14 @@ Module Program
                                        End If
                                    End Function)
 
-        app.MapPost("/orders", Async Function(newOrder As Order, db As DataContext) As Task(Of IResult)
-                                   db.Orders.Add(newOrder)
+        app.MapPost("/orders", Async Function(order As Order, db As DataContext) As Task(Of IResult)
+                                   db.Orders.Add(order)
                                    Await db.SaveChangesAsync()
+                                   order.OrderNumber = "O" + (order.Id + 1).ToString
+                                   Await db.SaveChangesAsync()
+                                   Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = order.Id)
 
-                                   Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = newOrder.Id)
-
-                                   Return Results.Created($"/todoitems/{newOrder.Id}", dbOrder)
+                                   Return Results.Created($"/todoitems/{order.Id}", dbOrder)
                                End Function)
 
         app.MapPut("/orders/{id}", Async Function(id As Integer, order As Order, db As DataContext) As Task(Of IResult)

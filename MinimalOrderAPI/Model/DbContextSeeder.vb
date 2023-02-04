@@ -20,7 +20,7 @@ Public Module DbContextSeeder
             Dim customerCompanyName As String = Faker.Company.Name
 
             Dim order As New Order() With {
-                .OrderNumber = "O" + ((index + 1) * 1000).ToString,
+                .OrderNumber = "O" + (index + 1).ToString,
                 .CustomerName = Faker.Company.Name,
                 .CustomerEmail = Faker.Internet.FreeEmail,
                 .CustomerPhone = Faker.Phone.Number,
