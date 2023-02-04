@@ -68,7 +68,10 @@ Module Program
         app.MapPost("/orders", Async Function(newOrder As Order, db As DataContext) As Task(Of IResult)
                                    db.Orders.Add(newOrder)
                                    Await db.SaveChangesAsync()
-                                   Return Results.Created($"/todoitems/{newOrder.Id}", newOrder)
+
+                                   Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = newOrder.Id)
+
+                                   Return Results.Created($"/todoitems/{newOrder.Id}", dbOrder)
                                End Function)
 
         app.MapPut("/orders/{id}", Async Function(id As Integer, order As Order, db As DataContext) As Task(Of IResult)
@@ -97,7 +100,9 @@ Module Program
                                        Next
 
                                        Await db.SaveChangesAsync()
-                                       Return Results.Ok(oldOrder)
+
+                                       Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = oldOrder.Id)
+                                       Return Results.Ok(dbOrder)
                                    End Function)
 
         app.MapDelete("/orders/{id}", Async Function(id As Integer, db As DataContext) As Task(Of IResult)
