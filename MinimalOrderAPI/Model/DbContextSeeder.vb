@@ -10,7 +10,17 @@ Public Module DbContextSeeder
 
         Dim random As New Random()
         Dim randomNumber As Integer = random.Next(10, 150)
+        Dim randomNumberForProduct As Integer = random.Next(10, 40)
 
+        Dim productList = New List(Of Product)
+
+        For productIndex = 1 To randomNumberForProduct
+            Dim product As New Product() With {
+                 .ProductName = Faker.Lorem.Words(1).First,
+                 .Description = Faker.Lorem.Paragraph(1)
+            }
+            productList.Add(product)
+        Next
 
 
         For index = 0 To randomNumber
@@ -29,8 +39,10 @@ Public Module DbContextSeeder
             }
 
             For subIndex = 0 To randomNumberRow
+
+                Dim productIndex = random.Next(0, randomNumberForProduct - 1)
                 Dim orderline As New Orderline() With {
-                  .ProductName = Faker.Lorem.Words(1).First,
+                  .Product = productList(productIndex),
                   .Count = random.Next(1, 15),
                   .UnitCost = random.Next(1, 150),
                   .TotalCost = 0,

@@ -17,4 +17,5 @@ Public Class DataContext
 
     Public Property Orders As DbSet(Of Order)
     Public Property Orderlines As DbSet(Of Orderline)
+    Public Property Products As DbSet(Of Product)
 End Class

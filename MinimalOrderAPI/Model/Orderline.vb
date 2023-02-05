@@ -8,8 +8,10 @@ Public Class Orderline
     <DatabaseGenerated(DatabaseGeneratedOption.Identity)>
     Public Property Id As Integer
 
-    <Required>
-    Public Property ProductName As String
+    <ForeignKey("Product")>
+    Public Property ProductId As Nullable(Of Integer)
+
+    Public Property Product As Product
 
     <Required>
     Public Property Count As Integer

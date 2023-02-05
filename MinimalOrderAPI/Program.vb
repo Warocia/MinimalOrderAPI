@@ -51,13 +51,26 @@ Module Program
             DbContextSeeder.Seed(DbContext)
         End Using
 
+        app.MapGet("/products", Async Function(db As DataContext) As Task(Of List(Of Product))
+                                    Return Await db.Products.ToListAsync()
+                                End Function)
+
+        app.MapGet("/products/{id}", Async Function(id As Integer, db As DataContext) As Task(Of IResult)
+                                         Dim product = Await db.Products.FirstOrDefaultAsync(Function(t) t.Id = id)
+                                         If product IsNot Nothing Then
+                                             Return Results.Ok(product)
+                                         Else
+                                             Return Results.NotFound
+                                         End If
+                                     End Function)
+
         app.MapGet("/orders", Async Function(db As DataContext) As Task(Of List(Of Order))
-                                  Return Await db.Orders.Include(Function(t) t.Orderlines).ToListAsync()
+                                  Return Await db.Orders.Include(Function(t) t.Orderlines).ThenInclude(Function(l) l.Product).ToListAsync()
                               End Function)
 
 
         app.MapGet("/orders/{id}", Async Function(id As Integer, db As DataContext) As Task(Of IResult)
-                                       Dim order = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = id)
+                                       Dim order = Await db.Orders.Include(Function(t) t.Orderlines).ThenInclude(Function(l) l.Product).FirstOrDefaultAsync(Function(t) t.Id = id)
                                        If order IsNot Nothing Then
                                            Return Results.Ok(order)
                                        Else
@@ -70,14 +83,14 @@ Module Program
                                    Await db.SaveChangesAsync()
                                    order.OrderNumber = "O" + (order.Id + 1).ToString
                                    Await db.SaveChangesAsync()
-                                   Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = order.Id)
+                                   Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).ThenInclude(Function(l) l.Product).FirstOrDefaultAsync(Function(t) t.Id = order.Id)
 
                                    Return Results.Created($"/todoitems/{order.Id}", dbOrder)
                                End Function)
 
         app.MapPut("/orders/{id}", Async Function(id As Integer, order As Order, db As DataContext) As Task(Of IResult)
 
-                                       Dim oldOrder = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = id)
+                                       Dim oldOrder = Await db.Orders.Include(Function(t) t.Orderlines).ThenInclude(Function(l) l.Product).FirstOrDefaultAsync(Function(t) t.Id = id)
 
                                        If oldOrder Is Nothing Then
                                            Return Results.NotFound()
@@ -97,12 +110,13 @@ Module Program
 
 
                                        For Each orderline In order.Orderlines
+                                           orderline.Product = Nothing
                                            oldOrder.Orderlines.Add(orderline)
                                        Next
 
                                        Await db.SaveChangesAsync()
 
-                                       Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).FirstOrDefaultAsync(Function(t) t.Id = oldOrder.Id)
+                                       Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).ThenInclude(Function(l) l.Product).FirstOrDefaultAsync(Function(t) t.Id = oldOrder.Id)
                                        Return Results.Ok(dbOrder)
                                    End Function)
 
