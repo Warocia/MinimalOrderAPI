@@ -64,6 +64,50 @@ Module Program
                                          End If
                                      End Function)
 
+        app.MapPost("/products", Async Function(product As Product, db As DataContext) As Task(Of IResult)
+                                     db.Products.Add(product)
+                                     Await db.SaveChangesAsync()
+                                     Return Results.Created($"/products/{product.Id}", product)
+                                 End Function)
+
+        app.MapDelete("/products/{id}", Async Function(id As Integer, db As DataContext) As Task(Of IResult)
+                                            Dim product = Await db.Products.FirstOrDefaultAsync(Function(t) t.Id = id)
+
+                                            If product Is Nothing Then
+                                                Return Results.NotFound
+                                            End If
+
+                                            Dim orderline = Await db.Orderlines.FirstOrDefaultAsync(Function(t) t.ProductId = product.Id)
+
+                                            If orderline Is Nothing Then
+                                                db.Products.Remove(product)
+
+                                                Await db.SaveChangesAsync()
+                                                Return Results.Ok(product)
+
+                                            End If
+
+                                            Return Results.Conflict()
+                                        End Function)
+
+        app.MapPut("/products/{id}", Async Function(id As Integer, product As Product, db As DataContext) As Task(Of IResult)
+
+                                         Dim oldProduct = Await db.Products.FirstOrDefaultAsync(Function(t) t.Id = id)
+
+                                         If oldProduct Is Nothing Then
+                                             Return Results.NotFound()
+                                         End If
+
+                                         oldProduct.ProductName = product.ProductName
+                                         oldProduct.Description = product.Description
+
+                                         Await db.SaveChangesAsync()
+
+                                         Dim dbProduct = Await db.Products.FirstOrDefaultAsync(Function(t) t.Id = id)
+                                         Return Results.Ok(dbProduct)
+                                     End Function)
+
+
         app.MapGet("/orders", Async Function(db As DataContext) As Task(Of List(Of Order))
                                   Return Await db.Orders.Include(Function(t) t.Orderlines).ThenInclude(Function(l) l.Product).ToListAsync()
                               End Function)
@@ -85,7 +129,7 @@ Module Program
                                    Await db.SaveChangesAsync()
                                    Dim dbOrder = Await db.Orders.Include(Function(t) t.Orderlines).ThenInclude(Function(l) l.Product).FirstOrDefaultAsync(Function(t) t.Id = order.Id)
 
-                                   Return Results.Created($"/todoitems/{order.Id}", dbOrder)
+                                   Return Results.Created($"/orders/{order.Id}", dbOrder)
                                End Function)
 
         app.MapPut("/orders/{id}", Async Function(id As Integer, order As Order, db As DataContext) As Task(Of IResult)
