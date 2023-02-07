@@ -48,7 +48,11 @@ Module Program
             Dim services = scope.ServiceProvider
 
             Dim DbContext As DataContext = services.GetRequiredService(Of DataContext)
-            DbContextSeeder.Seed(DbContext)
+
+            If app.Environment.IsDevelopment() Then
+                DbContextSeeder.Seed(DbContext)
+            End If
+
         End Using
 
         app.MapGet("/products", Async Function(db As DataContext) As Task(Of List(Of Product))
