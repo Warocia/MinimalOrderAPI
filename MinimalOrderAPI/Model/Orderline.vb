@@ -16,13 +16,18 @@ Public Class Orderline
     <Required>
     Public Property Count As Integer
 
+    <DataType(DataType.Currency)>
+    Public Property TotalUnitCostPrice As Decimal
 
     <DataType(DataType.Currency)>
-    Public Property UnitCost As Decimal
+    Public Property UnitCostPrice As Decimal
 
     <DataType(DataType.Currency)>
-    Public Property TotalCost As Decimal
+    Public Property UnitSalesPrice As Decimal
 
-    Public Property CostUnit As String
+    <DataType(DataType.Currency)>
+    Public Property SalesPriceTotal As Decimal
+
+    Public Property PriceUnit As String
 
 End Class

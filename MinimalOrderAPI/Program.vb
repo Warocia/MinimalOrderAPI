@@ -100,6 +100,8 @@ Module Program
 
                                          oldProduct.ProductName = product.ProductName
                                          oldProduct.Description = product.Description
+                                         oldProduct.CostPrice = product.CostPrice
+                                         oldProduct.SalesPrice = product.SalesPrice
 
                                          Await db.SaveChangesAsync()
 

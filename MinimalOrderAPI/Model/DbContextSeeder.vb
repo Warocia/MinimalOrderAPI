@@ -15,10 +15,16 @@ Public Module DbContextSeeder
         Dim productList = New List(Of Product)
 
         For productIndex = 1 To randomNumberForProduct
+
+            Dim price As Decimal = random.Next(10, 200)
+
             Dim product As New Product() With {
                  .ProductName = Faker.Lorem.Words(1).First,
-                 .Description = Faker.Lorem.Paragraph(1)
+                 .Description = Faker.Lorem.Paragraph(1),
+                 .CostPrice = price,
+                 .SalesPrice = price * 1.2
             }
+
             productList.Add(product)
         Next
 
@@ -44,12 +50,16 @@ Public Module DbContextSeeder
                 Dim orderline As New Orderline() With {
                   .Product = productList(productIndex),
                   .Count = random.Next(1, 15),
-                  .UnitCost = random.Next(1, 150),
-                  .TotalCost = 0,
-                  .CostUnit = "€"
+                  .UnitCostPrice = productList(productIndex).CostPrice,
+                  .UnitSalesPrice = productList(productIndex).SalesPrice,
+                  .TotalUnitCostPrice = 0,
+                  .SalesPriceTotal = 0,
+                  .PriceUnit = "€"
                 }
 
-                orderline.TotalCost = orderline.UnitCost * orderline.Count
+
+                orderline.SalesPriceTotal = orderline.UnitSalesPrice * orderline.Count
+                orderline.TotalUnitCostPrice = orderline.UnitCostPrice * orderline.Count
                 order.Orderlines.Add(orderline)
 
             Next

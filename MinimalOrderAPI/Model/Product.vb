@@ -14,4 +14,12 @@ Public Class Product
     <Required>
     Public Property Description As String
 
+    <Required>
+    <DataType(DataType.Currency)>
+    Public Property CostPrice As Decimal
+
+    <Required>
+    <DataType(DataType.Currency)>
+    Public Property SalesPrice As Decimal
+
 End Class
